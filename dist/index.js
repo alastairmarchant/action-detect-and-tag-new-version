@@ -2630,7 +2630,8 @@ async function run() {
     let previousVersion = await determine_version_1.determineVersion();
     core_1.info(`Previous version: ${previousVersion}`);
     core_1.setOutput('previous-version', previousVersion);
-    await git_1.checkout(utils_1.getEnv('GITHUB_REF'));
+    const checkoutRef = utils_1.getEnvOrNull('GITHUB_HEAD_REF') || utils_1.getEnv('GITHUB_REF');
+    await git_1.checkout(checkoutRef);
     let currentVersion = await determine_version_1.determineVersion();
     core_1.info(`Current version: ${currentVersion}`);
     core_1.setOutput('current-version', currentVersion);
@@ -6920,8 +6921,16 @@ module.exports = require("http");
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-function getEnv(name) {
+function getEnvOrNull(name) {
     let value = process.env[name];
+    if (typeof value === 'string') {
+        return value;
+    }
+    return null;
+}
+exports.getEnvOrNull = getEnvOrNull;
+function getEnv(name) {
+    let value = getEnvOrNull(name);
     if (typeof value === 'string') {
         return value;
     }
